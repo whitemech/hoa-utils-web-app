@@ -44,7 +44,7 @@ TIMEOUT = 5
 @dataclass(frozen=True)
 class Configuration:
     """
-    An helper class that lets the app to seamlessly 
+    An helper class that lets the app to seamlessly
     read configuration from code and from OS environment.
     """
 

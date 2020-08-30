@@ -23,19 +23,19 @@ const DEFAULT_CODEMIRROR_OPTIONS = {
 };
 const INITIAL_CODE =
   '\
-HOA: v1 \n \
-States: 2 \n \
-Start: 0 \n \
-acc-name: Rabin 1 \n \
-Acceptance: 2 (Fin(0) & Inf(1)) \n \
-AP: 2 "a" "b" \n \
---BODY-- \n \
-State: 0 "a U b"   /* An example of named state */ \n \
-  [0 & !1] 0 {0} \n \
-  [1] 1 {0} \n \
-State: 1 \n \
-  [t] 1 {1} \n \
---END-- \n \
+HOA: v1\n\
+States: 2\n\
+Start: 0\n\
+acc-name: Rabin 1\n\
+Acceptance: 2 (Fin(0) & Inf(1))\n\
+AP: 2 "a" "b"\n\
+--BODY--\n\
+State: 0 "a U b"   /* An example of named state */\n\
+  [0 & !1] 0 {0}\n\
+  [1] 1 {0}\n\
+State: 1\n\
+  [t] 1 {1}\n\
+--END--\n\
 ';
 
 const content = `
