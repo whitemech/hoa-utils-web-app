@@ -1,0 +1,62 @@
+name: test
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+
+
+jobs:
+#   server:
+#     timeout-minutes: 30
+#     runs-on: ${{ matrix.os }}
+#     strategy:
+#       matrix:
+#         os: [ubuntu-latest]
+#         python-version: [3.7]
+#     steps:
+#     - uses: actions/checkout@v1
+#     - uses: actions/setup-python@master
+#       with:
+#         python-version: ${{ matrix.python-version }}
+#     - name: Install dependencies
+#       run: |
+#         sudo apt-get update --fix-missing
+#         sudo apt-get autoremove
+#         sudo apt-get autoclean
+#         pip install tox
+#     - name: Lint
+#       run: |
+#           cd server
+#           tox -e black-check
+#           tox -e isort-check
+#           tox -e flake8
+#           tox -e mypy
+#           tox -e bandit
+#     - name: Test (no integration)
+#       run: |
+#           cd server 
+#           tox -e py${{ matrix.python-version }} -- -m 'not integration'
+
+  client:
+    timeout-minutes: 30
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: cd client && yarn install --dev
+
+    - name: Lint
+      run: |
+          cd client
+          yarn run prettier:check
+    - name: Build
+      run: cd client && yarn build
+    - name: Test
+      run: cd client && yarn test --watchAll=false

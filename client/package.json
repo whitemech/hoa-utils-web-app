@@ -16,13 +16,16 @@
     "react": "^16.13.1",
     "react-codemirror2": "^7.2.1",
     "react-dom": "^16.13.1",
+    "react-inlinesvg": "^2.0.1",
     "react-scripts": "3.4.3"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "prettier:fix": "prettier --write \"./**/*.{ts,js,json,md,html}\"",
+    "prettier:check": "prettier --list-different \"./**/*.{ts,js,json,md,html}\""
   },
   "eslintConfig": {
     "extends": "react-app"
