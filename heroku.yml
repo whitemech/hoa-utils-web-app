@@ -1,0 +1,11 @@
+setup: {}
+build:
+  docker:
+    web: ./Dockerfile
+  config:
+    FLASK_STATIC_FOLDER: /client/build
+    REACT_APP_API_HOSTNAME: hoa-utils.whitemech.it
+    REACT_APP_API_ENDPOINT: /api/
+run:
+  web: gunicorn --bind 0.0.0.0:$PORT wsgi
+
