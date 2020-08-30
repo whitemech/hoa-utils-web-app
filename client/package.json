@@ -11,6 +11,7 @@
     "@testing-library/user-event": "^7.1.2",
     "@uiw/react-codemirror": "^2.3.2",
     "@uiw/react-github-corners": "^1.2.0",
+    "@uiw/react-markdown-preview": "^1.0.9",
     "codemirror": "^5.57.0",
     "react": "^16.13.1",
     "react-codemirror2": "^7.2.1",

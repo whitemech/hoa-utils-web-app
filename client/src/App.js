@@ -1,6 +1,9 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 
 import GitHubCorners from '@uiw/react-github-corners';
 import MarkdownPreview from '@uiw/react-markdown-preview';
@@ -9,8 +12,12 @@ import CodeMirror from '@uiw/react-codemirror';
 import 'codemirror/keymap/sublime';
 import 'codemirror/theme/monokai.css';
 
-import MarkdownContent from './content.md'
 
+const DEFAULT_CODEMIRROR_OPTIONS = {
+  mode: 'jsx',
+  theme: 'monokai',
+  keyMap: 'sublime'
+}
 const code = '\
 HOA: v1 \n \
 States: 2 \n \
@@ -42,17 +49,127 @@ Both \`hoa-utils\` and the web app are released under the GNU lesser general pub
 `;
 
 
+function api_endpoint() {
+  return (
+    window.location.protocol +
+    '//' +
+    process.env.REACT_APP_API_HOSTNAME +
+    process.env.REACT_APP_API_ENDPOINT
+  );
+}
+
+function renderError(msg) {
+  return "Server error: " + msg;
+}
+
+
+function handleErrors(response) {
+  if (!response.ok) {
+    throw Error(response.status + ' ' + response.statusText);
+  }
+  return response.json();
+}
+function handleErrorsAndClearTimer(timer) {
+  return response => {
+    clearTimeout(timer);
+    if (!response.ok) {
+      throw Error(response.status + ' ' + response.statusText);
+    }
+    return response.json();
+  };
+}
+
+class HOAValidationResult extends React.Component {
+
+  constructor(props){
+    super(props);
+  }
+
+  render() {
+    console.log(this.props.classes);
+    return (
+      <Paper className={this.props.classes, "result"}>{this.props.result}</Paper>
+    );
+  }
+}
+
+class HOAValidator extends React.Component {
+
+  constructor(props){
+    super(props);
+    this.state = {
+      result: null,
+      code: code,
+    };
+    this.timer = null;
+    this.onChanges = this.onChanges.bind(this);
+  }
+  
+
+  updateResult() {
+    let url = new URL(
+      api_endpoint() + 'validate/',
+    );
+
+    this.timer = setTimeout(() => {
+      this.setState({
+        result: () => (
+          <CircularProgress className={this.props.classes.progress} />
+        ),
+      });
+    }, 800);
+    fetch(url)
+      .then(handleErrorsAndClearTimer(this.timer))
+      .then(res => {
+        console.log("fail 1");
+        this.props.handleAnyParseError(res);
+        this.setState({ result: this.buildResult(res) });
+      })
+      .catch(error => {
+        console.log("fail 2:", error.message);
+        clearTimeout(this.timer);
+        this.setState({ result: () => renderError(error.message) });
+      });
+  }
+
+  onChanges(e) {
+    console.log("Changes detected.", e);
+    this.updateResult();
+  }
+
+  render(){
+    return (
+      <>
+      <CodeMirror
+        value={this.state.code}
+        ref={this.getInstance}
+        options={{
+          theme: DEFAULT_CODEMIRROR_OPTIONS.theme,
+          keyMap: DEFAULT_CODEMIRROR_OPTIONS.keyMap,
+          fullScreen: false,
+          mode: DEFAULT_CODEMIRROR_OPTIONS.mode,
+        }}
+        onChanges={this.onChanges}
+      />
+      <React.Fragment>
+      {this.state.result && (
+        <HOAValidationResult
+          classes={this.props.classes}
+          result={this.state.result()}
+        />
+      )}
+      </React.Fragment>
+      </>
+    )
+  }
+}
+
 
 export default class App extends React.Component {
 
+
   constructor() {
     super();
-    this.state = {
-      code: code,
-      mode: 'jsx',
-      theme: 'monokai',
-    };
-    this.onChanges = this.onChanges.bind(this);
   }
 
   getInstance = (instance) => {
@@ -62,9 +179,6 @@ export default class App extends React.Component {
       }
     }
 
-  onChanges(e) {
-    console.log("Changes detected.", e);
-  }
 
   render(){
     return (
@@ -72,26 +186,14 @@ export default class App extends React.Component {
         <GitHubCorners fixed target="__blank" zIndex={10} href="https://github.com/whitemech/hoa-utils" />
       <header className="App-header">
         <h1>HOA Format Validator</h1>
-        <p>An online, interactive HOA format valiator. <a href="http://adl.github.io/hoaf/" target="blank_">http://adl.github.io/hoaf/</a></p>
+        <p>An online, interactive HOA format validator. <a href="http://adl.github.io/hoaf/" target="blank_">http://adl.github.io/hoaf/</a></p>
       </header>
       <main className="App-main">
-        <CodeMirror
-              value={this.state.code}
-              ref={this.getInstance}
-              options={{
-                theme: "monokai",
-                keyMap: 'sublime',
-                fullScreen: false,
-                mode: "jsx",
-              }}
-              onChange={this.onChanges}
-            />
+        <HOAValidator />
         <MarkdownPreview className="markdown" source={content}/>
       </main>
       <footer className="App-footer">
-        <div>
-          © 2020 Whitemech 
-        </div>
+          © 2020 <a href='https://whitemech.github.io' target="_blank">Whitemech </a>
       </footer>
     </div>
     );
