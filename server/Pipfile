@@ -1,0 +1,29 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+flake8 = "*"
+black = "==20.8b1"
+isort = "*"
+tox = "*"
+mypy = "*"
+bandit = "*"
+pytest-cov = "*"
+pytest-randomly = "*"
+flake8-bugbear = "*"
+flake8-docstrings = "*"
+flake8-import-order = "*"
+pydocstyle = "*"
+gunicorn = "*"
+
+[packages]
+flask = "*"
+flask-cors = "*"
+python-dotenv = "*"
+hoa-utils = "*"
+
+[requires]
+python_version = "3.7"

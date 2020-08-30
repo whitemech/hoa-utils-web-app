@@ -15,12 +15,13 @@ import SVG from 'react-inlinesvg';
 import ok_icon from './media/ok-icon.svg';
 import error_icon from './media/error-icon.svg';
 
+const REQUEST_TIMEOUT = 800;
 const DEFAULT_CODEMIRROR_OPTIONS = {
   mode: 'jsx',
   theme: 'monokai',
   keyMap: 'sublime',
 };
-const code =
+const INITIAL_CODE =
   '\
 HOA: v1 \n \
 States: 2 \n \
@@ -71,7 +72,6 @@ function handleErrorsAndClearTimer(timer) {
 }
 
 class HOAValidationResult extends React.Component {
-
   render() {
     return (
       <Paper className={(this.props.classes, 'result')}>
@@ -86,23 +86,26 @@ class HOAValidator extends React.Component {
     super(props);
     this.state = {
       result: null,
-      code: code,
+      code: this.props.code,
     };
     this.timer = null;
-    this.onChanges = this.onChanges.bind(this);
+    this.onChange = this.onChange.bind(this);
   }
 
   updateResult() {
     let url = new URL(api_endpoint() + 'validate/');
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: btoa(this.state.code) }),
+    };
 
     this.timer = setTimeout(() => {
       this.setState({
-        result: () => (
-          <CircularProgress className={this.props.classes.progress} />
-        ),
+        result: () => <CircularProgress classes={this.props.classes} />,
       });
-    }, 800);
-    fetch(url)
+    }, REQUEST_TIMEOUT);
+    fetch(url, requestOptions)
       .then(handleErrorsAndClearTimer(this.timer))
       .then(res => {
         this.setState({ result: () => this.buildResult(res) });
@@ -113,20 +116,21 @@ class HOAValidator extends React.Component {
           ok: false,
           message: error.message,
         };
-        this.setState({ result: () => this.buildResult(res) });
+        this.setState({ result: () => this.handleError(res) });
       });
   }
 
+  handleError(res) {
+    return (
+      <div className={this.props.classes}>
+        <SVG className="icon" src={error_icon} />
+        <p>{'Error: ' + res.message}</p>
+      </div>
+    );
+  }
+
   buildResult(res) {
-    if (!res.ok && !res.message.startsWith('500 ')) {
-      return (
-        <div className={this.props.classes}>
-          <SVG className="icon" src={error_icon} />
-          <p>{'Server error: ' + res.message}</p>
-        </div>
-      );
-    }
-    if (!res.ok && res.message.startsWith('500 ')) {
+    if (!res.success) {
       return (
         <div className={this.props.classes}>
           <SVG className="icon" src={error_icon} />
@@ -142,7 +146,8 @@ class HOAValidator extends React.Component {
     );
   }
 
-  onChanges(e) {
+  onChange(editor, data, value) {
+    this.state.code = editor.getValue();
     this.updateResult();
   }
 
@@ -151,14 +156,13 @@ class HOAValidator extends React.Component {
       <>
         <CodeMirror
           value={this.state.code}
-          ref={this.getInstance}
           options={{
             theme: DEFAULT_CODEMIRROR_OPTIONS.theme,
             keyMap: DEFAULT_CODEMIRROR_OPTIONS.keyMap,
             fullScreen: false,
             mode: DEFAULT_CODEMIRROR_OPTIONS.mode,
           }}
-          onChanges={this.onChanges}
+          onChange={this.onChange}
         />
         <React.Fragment>
           {this.state.result && (
@@ -174,13 +178,12 @@ class HOAValidator extends React.Component {
 }
 
 export default class App extends React.Component {
-
-  getInstance = instance => {
-    if (instance) {
-      this.codemirror = instance.codemirror;
-      this.editor = instance.editor;
-    }
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      code: INITIAL_CODE,
+    };
+  }
 
   render() {
     return (
@@ -196,18 +199,26 @@ export default class App extends React.Component {
           <h1>HOA Format Validator</h1>
           <p>
             An online, interactive HOA format validator.{' '}
-            <a href="http://adl.github.io/hoaf/" target="blank_" rel="noopener noreferrer">
+            <a
+              href="http://adl.github.io/hoaf/"
+              target="blank_"
+              rel="noopener noreferrer"
+            >
               http://adl.github.io/hoaf/
             </a>
           </p>
         </header>
         <main className="App-main">
-          <HOAValidator />
+          <HOAValidator code={INITIAL_CODE} />
           <MarkdownPreview className="markdown" source={content} />
         </main>
         <footer className="App-footer">
           © 2020{' '}
-          <a href="https://whitemech.github.io" target="_blank" rel="noopener noreferrer">
+          <a
+            href="https://whitemech.github.io"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Whitemech{' '}
           </a>
         </footer>
