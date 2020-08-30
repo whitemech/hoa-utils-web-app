@@ -3,7 +3,6 @@ import './App.css';
 
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
 
 import GitHubCorners from '@uiw/react-github-corners';
 import MarkdownPreview from '@uiw/react-markdown-preview';
@@ -72,9 +71,6 @@ function handleErrorsAndClearTimer(timer) {
 }
 
 class HOAValidationResult extends React.Component {
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     return (
@@ -112,7 +108,6 @@ class HOAValidator extends React.Component {
         this.setState({ result: () => this.buildResult(res) });
       })
       .catch(error => {
-        console.log('fail:', error.message);
         clearTimeout(this.timer);
         var res = {
           ok: false,
@@ -123,7 +118,6 @@ class HOAValidator extends React.Component {
   }
 
   buildResult(res) {
-    console.log(res);
     if (!res.ok && !res.message.startsWith('500 ')) {
       return (
         <div className={this.props.classes}>
@@ -180,9 +174,6 @@ class HOAValidator extends React.Component {
 }
 
 export default class App extends React.Component {
-  constructor() {
-    super();
-  }
 
   getInstance = instance => {
     if (instance) {
@@ -199,12 +190,13 @@ export default class App extends React.Component {
           target="__blank"
           zIndex={10}
           href="https://github.com/whitemech/hoa-utils"
+          rel="noopener noreferrer"
         />
         <header className="App-header">
           <h1>HOA Format Validator</h1>
           <p>
             An online, interactive HOA format validator.{' '}
-            <a href="http://adl.github.io/hoaf/" target="blank_">
+            <a href="http://adl.github.io/hoaf/" target="blank_" rel="noopener noreferrer">
               http://adl.github.io/hoaf/
             </a>
           </p>
@@ -215,7 +207,7 @@ export default class App extends React.Component {
         </main>
         <footer className="App-footer">
           © 2020{' '}
-          <a href="https://whitemech.github.io" target="_blank">
+          <a href="https://whitemech.github.io" target="_blank" rel="noopener noreferrer">
             Whitemech{' '}
           </a>
         </footer>
