@@ -21,22 +21,21 @@ const DEFAULT_CODEMIRROR_OPTIONS = {
   theme: 'monokai',
   keyMap: 'sublime',
 };
-const INITIAL_CODE =
-  '\
-HOA: v1\n\
-States: 2\n\
-Start: 0\n\
-acc-name: Rabin 1\n\
-Acceptance: 2 (Fin(0) & Inf(1))\n\
-AP: 2 "a" "b"\n\
---BODY--\n\
-State: 0 "a U b"   /* An example of named state */\n\
-  [0 & !1] 0 {0}\n\
-  [1] 1 {0}\n\
-State: 1\n\
-  [t] 1 {1}\n\
---END--\n\
-';
+const INITIAL_CODE = [
+  'HOA: v1',
+  'States: 2',
+  'Start: 0',
+  'acc-name: Rabin 1',
+  'Acceptance: 2 (Fin(0) & Inf(1))',
+  'AP: 2 "a" "b"',
+  '--BODY--',
+  'State: 0 "a U b"   /* An example of named state */',
+  '  [0 & !1] 0 {0}',
+  '  [1] 1 {0}',
+  'State: 1',
+  '  [t] 1 {1}',
+  '--END--',
+].join('\n');
 
 const content = `
 The HOA format validator is backed by the Python package [hoa-utils](https://github.com/whitemech/hoa-utils).
@@ -147,7 +146,9 @@ class HOAValidator extends React.Component {
   }
 
   onChange(editor, data, value) {
-    this.state.code = editor.getValue();
+    this.setState((state, props) => {
+      return { code: editor.getValue() };
+    });
     this.updateResult();
   }
 
