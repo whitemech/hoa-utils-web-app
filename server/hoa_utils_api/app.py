@@ -156,6 +156,7 @@ def index():
 
 
 if configuration.FLASK_STATIC_FOLDER:
+    app.logger.info(f"Using static folder {configuration.FLASK_STATIC_FOLDER}")
     index = app.route("/")(index)
 
 
